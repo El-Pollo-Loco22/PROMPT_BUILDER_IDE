@@ -1,0 +1,16 @@
+{
+  "name": "Agentic Prompt IDE",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/app",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  },
+  "forwardPorts": [8501, 11434],
+  "postCreateCommand": "pip install -r requirements.txt"
+}
