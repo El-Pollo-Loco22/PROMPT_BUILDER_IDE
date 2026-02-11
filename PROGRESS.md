@@ -61,7 +61,7 @@
 - [x] Required/unwanted content detection against `PromptSchema.must_include`/`must_not_include`
 - [x] Unit tests with mocked LLM (51 tests: format checkers, content detection,
       async/sync simulate, multi-framework) — 151 tests passing
-- [ ] Integration test against live Ollama (llama3:8b)
+- [x] Integration test against live Ollama (llama3:8b)
 
 ### 2E — Linter Agent (Analysis Node)
 - [x] `LinterAgent` — multi-dimensional quality evaluation (heuristic-based, no LLM needed)
@@ -83,7 +83,16 @@
 - [x] `finalize` node — prepare final output with score + iterations history
 - [x] Unit tests with mocked agents: graph build, routing logic, individual nodes,
       iteration tracking (21 tests) — 209 tests passing
-- [ ] End-to-end integration test (full graph with live Ollama)
+- [x] End-to-end integration test (full graph with live Ollama)
+      7 e2e tests: individual agents, chained pipeline, full graph (CO-STAR + RACE)
+- [x] Live-LLM parser hardening: case-insensitive keys, nested dict flattening,
+      unknown key filtering, truncated JSON recovery
+- [x] Pre-Phase-3 scenario test suite (65 tests across 11 test classes):
+      parser resilience (12), architect parser resilience (9),
+      schema edge cases (7), error recovery (7), APE full-pipeline (4),
+      CRISPE full-pipeline (3), revision loop (7), content requirements (4),
+      format compliance edge cases (8), graph state management (3),
+      custom framework (1) — 302 total tests passing (295 unit + 7 e2e)
 
 ## Phase 3: Streamlit UI
 - [ ] Framework selector dropdown (CO-STAR, RACE, APE, CRISPE)

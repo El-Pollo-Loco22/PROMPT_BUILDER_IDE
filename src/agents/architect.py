@@ -235,8 +235,30 @@ class ArchitectAgent:
 
         data = json.loads(text[start:end])
 
+        # Normalize keys to lowercase (LLMs often return "Context" not "context")
+        # and flatten nested dicts to strings (LLMs sometimes return structured values)
+        # Also filter to only known framework keys (LLMs sometimes add extras)
+        framework_def = get_framework(framework)
+        allowed_keys = framework_def.all_keys
+
+        normalized: Dict[str, str] = {}
+        for key, value in data.items():
+            norm_key = key.lower().replace(" ", "_")
+            if norm_key not in allowed_keys:
+                continue
+            if isinstance(value, dict):
+                # Flatten nested dict: {"Level": "Junior", "Expertise": "Python"}
+                # → "Level: Junior, Expertise: Python"
+                normalized[norm_key] = ", ".join(
+                    f"{k}: {v}" for k, v in value.items()
+                )
+            elif isinstance(value, list):
+                normalized[norm_key] = ", ".join(str(v) for v in value)
+            else:
+                normalized[norm_key] = str(value)
+
         # Build PromptSchema with parsed sections
         return PromptSchema(
             framework=framework,
-            sections=data,
+            sections=normalized,
         )

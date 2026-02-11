@@ -9,7 +9,8 @@ Supports CO-STAR (default), RACE, APE, CRISPE, and custom frameworks.
 from __future__ import annotations
 
 import json
-from typing import Dict, List
+import re
+from typing import Any, Dict, List, Optional
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_ollama import ChatOllama
@@ -17,6 +18,38 @@ from pydantic import BaseModel, Field
 
 from src.config import settings
 from src.schemas.frameworks import FrameworkDef, FrameworkName, get_framework
+
+
+def _try_repair_json(fragment: str) -> Optional[Any]:
+    """
+    Attempt to repair truncated JSON by progressively trimming from the end
+    and closing open structures. Returns parsed dict or None.
+    """
+    # Strategy 1: strip trailing comma/whitespace, close open brackets/braces
+    cleaned = fragment.rstrip(",\n\t ")
+    open_braces = cleaned.count("{") - cleaned.count("}")
+    open_brackets = cleaned.count("[") - cleaned.count("]")
+    attempt = cleaned + "]" * open_brackets + "}" * open_braces
+    try:
+        return json.loads(attempt)
+    except json.JSONDecodeError:
+        pass
+
+    # Strategy 2: find the last complete key-value pair and truncate there
+    # Look for the last complete "key": "value" or "key": [...] or "key": number
+    # by finding the last comma that separates complete entries
+    for i in range(len(cleaned) - 1, 0, -1):
+        if cleaned[i] == ",":
+            truncated = cleaned[:i]
+            ob = truncated.count("{") - truncated.count("}")
+            ol = truncated.count("[") - truncated.count("]")
+            attempt = truncated + "]" * ol + "}" * ob
+            try:
+                return json.loads(attempt)
+            except json.JSONDecodeError:
+                continue
+
+    return None
 
 
 def build_extraction_prompt(framework_def: FrameworkDef) -> str:
@@ -144,23 +177,37 @@ class IntentExtractor:
         start = text.find("{")
         end = text.rfind("}") + 1
         if start == -1 or end == 0:
-            raise ValueError(f"No JSON object found in LLM response: {raw[:200]}")
+            # LLM may return truncated JSON — try adding closing brace
+            if start != -1:
+                text = text + "}"
+                end = len(text)
+            else:
+                raise ValueError(f"No JSON object found in LLM response: {raw[:200]}")
 
-        data = json.loads(text[start:end])
+        try:
+            data = json.loads(text[start:end])
+        except json.JSONDecodeError:
+            # Truncated JSON — attempt to salvage by closing open structures
+            fragment = text[start:]
+            data = _try_repair_json(fragment)
+            if data is None:
+                raise ValueError(f"Could not parse JSON from LLM response: {raw[:200]}")
 
         # Resolve framework def if not provided
         if framework_def is None:
             framework_def = get_framework(framework)
 
         # Separate framework sections from meta-fields
+        # Normalize keys to lowercase (LLMs often capitalize)
         meta_keys = {"missing_variables", "constraints", "response_format"}
         section_keys = framework_def.all_keys
         sections = {}
         for key, value in data.items():
-            if key in meta_keys:
+            norm_key = key.lower()
+            if norm_key in meta_keys:
                 continue
-            if key in section_keys:
-                sections[key] = str(value)
+            if norm_key in section_keys:
+                sections[norm_key] = str(value)
 
         return ExtractedIntent(
             framework=framework,
