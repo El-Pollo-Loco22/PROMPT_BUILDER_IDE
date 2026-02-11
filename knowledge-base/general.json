@@ -1,0 +1,35 @@
+{
+  "category": "General",
+  "description": "Fallback knowledge base for prompts that don't match a specific domain",
+  "bestPractices": [
+    {
+      "rule": "Start with context before the task",
+      "why": "Models perform better when background information precedes the instruction"
+    },
+    {
+      "rule": "Be explicit about response length",
+      "why": "Without length guidance, local models may produce overly verbose or truncated output"
+    },
+    {
+      "rule": "Specify the audience clearly",
+      "why": "A prompt for a beginner vs an expert yields very different responses"
+    },
+    {
+      "rule": "Include at least one example when possible",
+      "why": "Even a single input/output example significantly improves output quality"
+    },
+    {
+      "rule": "State what NOT to do",
+      "why": "Negative constraints help prevent common failure modes in local models"
+    }
+  ],
+  "templates": [
+    {
+      "name": "General Task",
+      "context": "You are a knowledgeable assistant helping with {{domain}}.",
+      "objective": "{{task_description}}",
+      "audience": "{{audience_description}}",
+      "typical_constraints": ["be concise", "use plain language"]
+    }
+  ]
+}

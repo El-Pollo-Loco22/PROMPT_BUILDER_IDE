@@ -1,0 +1,42 @@
+{
+  "category": "Software Development",
+  "description": "Best practices and templates for software development prompts",
+  "bestPractices": [
+    {
+      "rule": "Specify the programming language and version",
+      "why": "Local models produce better code when the language and version constraints are explicit"
+    },
+    {
+      "rule": "Include error handling requirements",
+      "why": "Without explicit instruction, models often omit try/except blocks and edge cases"
+    },
+    {
+      "rule": "Define input/output examples",
+      "why": "Few-shot examples dramatically improve output accuracy for code generation"
+    },
+    {
+      "rule": "State the testing framework if tests are expected",
+      "why": "Models default to unittest; specifying pytest or another framework avoids rewrites"
+    },
+    {
+      "rule": "Mention dependency constraints",
+      "why": "Prevents the model from importing unavailable or unwanted third-party packages"
+    }
+  ],
+  "templates": [
+    {
+      "name": "Function Generation",
+      "context": "You are a {{language}} expert. The codebase uses {{framework}} and targets {{python_version}}.",
+      "objective": "Write a function that {{task_description}}.",
+      "audience": "{{expertise_level}} developer",
+      "typical_constraints": ["no external dependencies", "include type hints", "include docstring"]
+    },
+    {
+      "name": "Code Review",
+      "context": "You are a senior {{language}} developer performing a code review.",
+      "objective": "Review the following code for bugs, performance issues, and style violations.",
+      "audience": "development team",
+      "typical_constraints": ["be specific about line numbers", "suggest fixes, not just problems"]
+    }
+  ]
+}
