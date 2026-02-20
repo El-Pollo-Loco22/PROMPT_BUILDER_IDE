@@ -19,8 +19,8 @@ Custom frameworks can be registered at runtime.
 
 - **Python + LangGraph** — Agent orchestration (reflection loop)
 - **Ollama** — Local LLM inference (default: llama3:8b)
-- **FastAPI** — REST API for frontend (Phase 3)
-- **Electron + HTML/CSS/JS** — Desktop IDE-style UI (Phase 3)
+- **FastAPI** — REST API serving frontend and pipeline endpoints
+- **Electron + HTML/CSS/JS** — Desktop IDE-style UI (KAIJU STATION)
 - **Pydantic** — Typed prompt schemas with framework-aware validation
 - **Docker** — Portable, reproducible environment
 
@@ -39,8 +39,26 @@ source .venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Run tests
+# Run tests (304 passing)
 ./scripts/test.sh -q
+```
+
+### Run the IDE
+
+```bash
+# Start Ollama (required for LLM features)
+ollama serve
+
+# Start the FastAPI server
+.venv/bin/python3 -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload
+
+# Open http://127.0.0.1:8000 in your browser
+```
+
+Or use the Electron desktop wrapper:
+
+```bash
+cd electron && npm install && npm start
 ```
 
 ### Docker
@@ -69,15 +87,25 @@ src/
 │   ├── frameworks.py      # Framework registry (CO-STAR, RACE, APE, CRISPE)
 │   └── prompt.py          # PromptSchema, QualityScore, PromptTestResult
 ├── agents/
-│   └── intent_extractor.py # Parses user input into framework sections
-├── graph/                  # LangGraph orchestration
-├── api/                    # FastAPI backend (Phase 3)
+│   ├── intent_extractor.py # Parses user input into framework sections
+│   └── architect.py       # Builds/revises prompts from extracted intent
+├── graph/
+│   └── builder.py         # LangGraph reflection loop orchestration
+├── api/
+│   ├── main.py            # FastAPI app (6 endpoints + static files)
+│   └── schemas.py         # Pydantic request/response models
 └── config.py               # Pydantic Settings from .env
 
-frontend/                   # HTML prompt builder UI (Phase 3)
-electron/                   # Electron desktop wrapper (Phase 3)
+frontend/
+├── index.html             # KAIJU STATION prompt builder UI
+└── app.js                 # API wiring, state management, output renderers
+
+electron/
+├── main.js                # Electron wrapper (spawns uvicorn, opens window)
+└── package.json           # Electron dependency
+
 knowledge-base/             # Domain-specific best practices (JSON)
-tests/                      # pytest suite (302 tests)
+tests/                      # pytest suite (304 tests)
 ```
 
 See [FRONTEND_PLAN.md](FRONTEND_PLAN.md) for the frontend integration plan.

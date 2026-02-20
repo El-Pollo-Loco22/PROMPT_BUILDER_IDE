@@ -94,17 +94,18 @@
       format compliance edge cases (8), graph state management (3),
       custom framework (1) — 302 total tests passing (295 unit + 7 e2e)
 
-## Phase 3: Frontend (Electron + HTML + FastAPI)
+## Phase 3: Frontend (Electron + HTML + FastAPI) (COMPLETE)
 
-*Updated Feb 2025: Switched from Streamlit to Electron + HTML + FastAPI. See [FRONTEND_PLAN.md](FRONTEND_PLAN.md) for full spec.*
+*Completed Feb 20, 2026. Switched from Streamlit to Electron + HTML + FastAPI. See [FRONTEND_PLAN.md](FRONTEND_PLAN.md) for full spec.*
 
-- [ ] FastAPI backend (`src/api/`) with /api/frameworks, /api/domains, /api/health, /api/compile, /api/run
-- [ ] Graph extensions: user_overrides, quality_threshold, SimulationNode per-invocation model/temp
-- [ ] Frontend: copy prompt-builder HTML to `frontend/index.html`; add required DOM ids
-- [ ] buildPayload() with empty-input validation; appState; AbortController for in-flight cancellation
-- [ ] System status indicator (Grey/Green/Red); disable RUN/COMPILE until API ready
-- [ ] Wire COMPILE, RUN, COMPARE A/B to API; update output panels
-- [ ] Electron wrapper: cross-OS Python path, cwd=projectRoot, spawn uvicorn, load http://127.0.0.1:8000/
+- [x] Graph extensions: `user_overrides`, `quality_threshold` in `PromptBuilderState`; `should_continue` uses configurable threshold; `simulate_node` per-invocation model/temp; `architect_node` merges overrides; `load_knowledge_base` absolute paths
+- [x] FastAPI backend (`src/api/`) with 6 endpoints: `/`, `/api/health`, `/api/frameworks`, `/api/domains`, `/api/compile`, `/api/run` + StaticFiles mount for `app.js`
+- [x] Frontend: `frontend/index.html` (14+ DOM IDs, status bar CSS, spinner) + `frontend/app.js` (buildPayload, AbortController, output renderers, 30s health polling)
+- [x] System status indicator (Grey/Green/Red dot + text) with periodic `/api/health` polling
+- [x] Wire COMPILE, RUN, COMPARE A/B buttons to API; update all 6 output panels (Prompt, Score, Feedback, Sim, History, A/B)
+- [x] Electron wrapper: `electron/main.js` (spawns uvicorn, polls health, opens BrowserWindow, kills on quit) + `electron/package.json`
+- [x] Dependencies: `fastapi`, `uvicorn[standard]`, `httpx` added to `requirements.txt`
+- [x] Verified: 304 tests pass, FastAPI app imports cleanly, UI renders in browser
 
 ## Phase 4: Packaging & Distribution
 - [ ] Optimized production Dockerfile

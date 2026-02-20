@@ -83,7 +83,25 @@ src/schemas/
 
 src/agents/
 ├── intent_extractor.py   # IntentExtractor, ExtractedIntent, build_extraction_prompt
+├── architect.py          # ArchitectAgent, load_knowledge_base
 └── __init__.py           # Re-exports
+
+src/api/
+├── main.py          # FastAPI app (6 endpoints + StaticFiles mount)
+├── schemas.py       # Pydantic request/response models
+└── __init__.py
+
+src/graph/
+├── builder.py       # LangGraph reflection loop, PromptBuilderState
+└── __init__.py
+
+frontend/
+├── index.html       # KAIJU STATION UI (14+ DOM IDs, status bar)
+└── app.js           # API wiring, AbortController, output renderers
+
+electron/
+├── main.js          # Spawns uvicorn, polls health, opens BrowserWindow
+└── package.json     # Electron dependency
 ```
 
 ## Key Design Decisions

@@ -146,11 +146,13 @@ If the user clicks RUN, then COMPILE or changes framework before RUN returns, th
 
 ## 9. Implementation Checklist
 
-- [ ] Copy `prompt-builder-merged.html` → `frontend/index.html`
-- [ ] Add required DOM ids per table
-- [ ] Implement `buildPayload()` with empty-input validation
-- [ ] Implement `appState` and framework-change reset
-- [ ] Implement AbortController for in-flight cancellation
-- [ ] Add system status indicator (footer) and disable buttons until Green
-- [ ] Wire COMPILE, RUN, COMPARE A/B to API
-- [ ] Add loading/error states
+- [x] Copy `prompt-builder-merged.html` → `frontend/index.html`
+- [x] Add required DOM ids per table
+- [x] Implement `buildPayload()` with empty-input validation
+- [x] Implement `appState` and framework-change reset
+- [x] Implement AbortController for in-flight cancellation
+- [x] Add system status indicator (footer) and 30s health polling
+- [x] Wire COMPILE, RUN, COMPARE A/B to API
+- [x] Add loading/error states
+
+*All items completed Feb 20, 2026.*

@@ -8,10 +8,10 @@ IED Prompter is a framework-agnostic prompt engineering platform that automates 
 
 - Phase 1 (Environment & scaffolding): Completed — repository structure, Docker files, requirements, and initial smoke tests. See [PROGRESS.md](PROGRESS.md) for the full checklist.
 - Phase 2 (Agent Core): Completed — core components implemented and well-tested: Pydantic schemas, intent extraction, architect agent, simulation node, linter agent, and LangGraph-based orchestration (reflection loop).
-- Phase 3 (Frontend): In progress — Plan updated to Electron + HTML + FastAPI. Reuse existing HTML mock; FastAPI backend; desktop wrapper. See [FRONTEND_PLAN.md](FRONTEND_PLAN.md).
+- Phase 3 (Frontend): Completed Feb 20, 2026 — Electron + HTML + FastAPI. Desktop IDE with 6 API endpoints, full UI wiring, A/B comparison. See [FRONTEND_PLAN.md](FRONTEND_PLAN.md).
 - Phase 4 (Packaging & Distribution): Planned — production Dockerfile optimizations and deployment testing.
 
-Key metrics: ~302 tests passing across unit and end-to-end suites (295 unit + 7 e2e), live-model integration tests executed against Ollama (llama3:8b).
+Key metrics: 304 tests passing across unit and end-to-end suites (297 unit + 7 e2e), live-model integration tests executed against Ollama (llama3:8b). FastAPI backend verified with all endpoints returning correct responses.
 
 ## Architecture
 
@@ -22,8 +22,11 @@ The system is modular and node-oriented. Core pieces:
 - Architect Agent: Builds and revises prompts from schema-driven templates and knowledge-base context. See [src/agents/architect.py](src/agents/architect.py).
 - Simulation Node: Runs compiled prompts against Ollama, captures responses, execution time, token estimates, and checks format compliance.
 - Linter Agent: Heuristic evaluation producing `QualityScore` (clarity, specificity, token efficiency, risk flags) and human-readable feedback.
-- Orchestration: LangGraph wires the above nodes into a reflection loop: extract -> architect -> simulate -> linter -> conditional routing. See [src/graph/builder.py](src/graph/builder.py).
+- Orchestration: LangGraph wires the above nodes into a reflection loop: extract -> architect -> simulate -> linter -> conditional routing. `PromptBuilderState` includes `user_overrides` and `quality_threshold` for runtime configuration. See [src/graph/builder.py](src/graph/builder.py).
 - Knowledge Base: Domain JSON files used to enrich prompt context. See [knowledge-base/general.json](knowledge-base/general.json).
+- FastAPI Backend: 6 REST endpoints (`/`, `/api/health`, `/api/frameworks`, `/api/domains`, `/api/compile`, `/api/run`) + StaticFiles mount. See [src/api/main.py](src/api/main.py).
+- Frontend: KAIJU STATION HTML UI with `app.js` controller providing `buildPayload()`, `AbortController` for request cancellation, output renderers for 6 tabs, and 30-second health polling. See [frontend/index.html](frontend/index.html).
+- Electron Wrapper: Desktop app that spawns uvicorn as child process, polls `/api/health` until ready, and opens a BrowserWindow. See [electron/main.js](electron/main.js).
 
 ## Implementation Summary
 
@@ -54,16 +57,17 @@ Implementation validation highlights:
 - Core: Python, Pydantic, pytest/pytest-asyncio.
 - LLM host: Ollama (local model runner, tested with `llama3:8b`).
 - Orchestration: LangGraph-style node wiring (internal graph builder).
-- UI (planned): Electron + HTML/CSS/JS + FastAPI for desktop IDE experience.
+- UI (implemented): Electron + HTML/CSS/JS + FastAPI for desktop IDE experience (KAIJU STATION design).
 - Deployment: Docker + docker-compose for containerized runs.
 
 Key files and manifests: [README.md](README.md), [PROGRESS.md](PROGRESS.md), [ARCHITECTURE.md](ARCHITECTURE.md), [requirements.txt](requirements.txt), [Dockerfile](Dockerfile), [docker-compose.yml](docker-compose.yml).
 
 ## Next Steps
 
-1. Complete frontend integration (FastAPI backend, HTML wiring, Electron wrapper). See [FRONTEND_PLAN.md](FRONTEND_PLAN.md).
-2. Harden production Dockerfile and run E2E deployment tests.
-3. Add CI workflows to run unit and integration tests automatically; gate live-model tests to optional runs.
+1. Harden production Dockerfile and run E2E deployment tests.
+2. Add CI workflows to run unit and integration tests automatically; gate live-model tests to optional runs.
+3. Add streaming support for `/api/run` endpoint to show real-time iteration progress.
+4. Implement persistent prompt history (save/load sessions).
 
 ---
 
