@@ -19,7 +19,8 @@ Custom frameworks can be registered at runtime.
 
 - **Python + LangGraph** — Agent orchestration (reflection loop)
 - **Ollama** — Local LLM inference (default: llama3:8b)
-- **Streamlit** — IDE-style UI
+- **FastAPI** — REST API for frontend (Phase 3)
+- **Electron + HTML/CSS/JS** — Desktop IDE-style UI (Phase 3)
 - **Pydantic** — Typed prompt schemas with framework-aware validation
 - **Docker** — Portable, reproducible environment
 
@@ -32,14 +33,14 @@ Custom frameworks can be registered at runtime.
 cd IED_Prompter
 
 # Create virtual environment
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Run tests
-pytest tests/ -v
+./scripts/test.sh -q
 ```
 
 ### Docker
@@ -69,13 +70,17 @@ src/
 │   └── prompt.py          # PromptSchema, QualityScore, PromptTestResult
 ├── agents/
 │   └── intent_extractor.py # Parses user input into framework sections
-├── graph/                  # LangGraph orchestration (Phase 2F)
-├── ui/                     # Streamlit frontend (Phase 3)
+├── graph/                  # LangGraph orchestration
+├── api/                    # FastAPI backend (Phase 3)
 └── config.py               # Pydantic Settings from .env
 
+frontend/                   # HTML prompt builder UI (Phase 3)
+electron/                   # Electron desktop wrapper (Phase 3)
 knowledge-base/             # Domain-specific best practices (JSON)
-tests/                      # pytest suite (64 tests)
+tests/                      # pytest suite (302 tests)
 ```
+
+See [FRONTEND_PLAN.md](FRONTEND_PLAN.md) for the frontend integration plan.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for system design.
 See [ROADMAP.md](ROADMAP.md) for project phases.

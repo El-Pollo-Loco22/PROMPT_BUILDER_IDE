@@ -25,7 +25,12 @@ from src.schemas.prompt import PromptSchema
 # Knowledge Base Loader
 # ---------------------------------------------------------------------------
 
-def load_knowledge_base(kb_dir: str | Path = "knowledge-base") -> Dict[str, Any]:
+# Resolve knowledge-base relative to project root (3 levels up from this file)
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_DEFAULT_KB_DIR = _PROJECT_ROOT / "knowledge-base"
+
+
+def load_knowledge_base(kb_dir: str | Path = _DEFAULT_KB_DIR) -> Dict[str, Any]:
     """
     Load all JSON knowledge base files from a directory.
     Returns a dict keyed by category name.

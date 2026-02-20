@@ -4,11 +4,16 @@
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                  Streamlit UI                     │
-│  ┌─────────────┬──────────────┬───────────────┐  │
-│  │  Framework   │   Prompt     │    Agent      │  │
-│  │  Selector    │   Editor     │    Feedback   │  │
-│  └─────────────┴──────────────┴───────────────┘  │
+│  Electron App (Chromium)                          │
+│  HTML/CSS/JS UI (KAIJU STATION prompt builder)  │
+│  Served at http://127.0.0.1:8000/                │
+└──────────────────────┬──────────────────────────┘
+                       │ fetch API
+                       ▼
+┌─────────────────────────────────────────────────┐
+│  FastAPI Backend (:8000)                          │
+│  /api/frameworks  /api/domains  /api/health      │
+│  /api/compile  /api/run                          │
 └──────────────────────┬──────────────────────────┘
                        │
                        ▼
@@ -38,13 +43,15 @@
 
 ## Data Flow
 
-1. User enters a rough prompt idea in the Streamlit editor and selects a framework (CO-STAR, RACE, APE, CRISPE)
+1. User enters a rough prompt idea in the HTML UI and selects a framework (CO-STAR, RACE, APE, CRISPE)
 2. **Intent Extractor** parses free-form input into structured framework sections via Ollama
 3. **Architect Agent** builds a full `PromptSchema` using the selected framework's section definitions
 4. **Simulation Node** runs the compiled prompt against local Ollama, capturing response + metrics
 5. **Linter Agent** evaluates quality (clarity, specificity, structure, constraints, token efficiency) and produces a `QualityScore`
 6. If score < 7, the loop cycles back to Architect with critique for refinement (max 3 iterations)
-7. Final prompt is returned to the UI with the compiled output, test result, score, and suggestions
+7. Final prompt is returned via the API to the UI with the compiled output, test result, score, and suggestions
+
+See [FRONTEND_PLAN.md](FRONTEND_PLAN.md) for frontend integration details.
 
 ## Multi-Framework Support
 

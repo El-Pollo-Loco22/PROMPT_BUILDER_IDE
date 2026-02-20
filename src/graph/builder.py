@@ -38,6 +38,8 @@ class PromptBuilderState(TypedDict, total=False):
     framework: str
     domain: str
     expected_format: str
+    user_overrides: Optional[Dict[str, Any]]  # Phase 3: form overrides
+    quality_threshold: int  # Phase 3: configurable (default 7)
 
     # Intermediate
     intent: Dict[str, Any]
@@ -90,6 +92,26 @@ async def architect_node(state: PromptBuilderState) -> PromptBuilderState:
         critique=critique,
     )
 
+    # Phase 3: Merge user overrides onto architect output
+    overrides = state.get("user_overrides") or {}
+    if overrides:
+        override_fields = {}
+        for key in ("must_include", "must_not_include", "constraints", "variables", "examples"):
+            if key in overrides and overrides[key]:
+                override_fields[key] = overrides[key]
+        # Apply target_model and temperature from overrides
+        if "target_model" in overrides and overrides["target_model"]:
+            override_fields["target_model"] = overrides["target_model"]
+        if "temperature" in overrides and overrides["temperature"] is not None:
+            override_fields["temperature"] = overrides["temperature"]
+        if "max_tokens" in overrides and overrides["max_tokens"] is not None:
+            override_fields["max_tokens"] = overrides["max_tokens"]
+        if override_fields:
+            # Rebuild PromptSchema with merged overrides
+            data = prompt.model_dump()
+            data.update(override_fields)
+            prompt = PromptSchema(**data)
+
     return {
         **state,
         "current_prompt": prompt,
@@ -99,11 +121,16 @@ async def architect_node(state: PromptBuilderState) -> PromptBuilderState:
 
 async def simulate_node(state: PromptBuilderState) -> PromptBuilderState:
     """Run the compiled prompt against Ollama."""
-    simulator = SimulationNode()
+    prompt = state["current_prompt"]
+    # Phase 3: Construct SimulationNode per-invocation with prompt's model/temp
+    simulator = SimulationNode(
+        model=prompt.target_model.value,
+        temperature=prompt.temperature,
+    )
     expected_format = state.get("expected_format", ResponseFormat.TEXT.value)
 
     test_result = await simulator.simulate(
-        prompt_schema=state["current_prompt"],
+        prompt_schema=prompt,
         expected_format=expected_format,
     )
 
@@ -170,9 +197,11 @@ def should_continue(state: PromptBuilderState) -> str:
     score = state.get("quality_score")
     iteration = state.get("iteration", 1)
     max_iter = state.get("max_iterations", 3)
+    # Phase 3: Use configurable quality threshold
+    threshold = state.get("quality_threshold", 7)
 
     # Pass if score meets threshold
-    if score is not None and score.passes_threshold():
+    if score is not None and score.passes_threshold(threshold=threshold):
         return "finalize"
 
     # Stop if max iterations reached

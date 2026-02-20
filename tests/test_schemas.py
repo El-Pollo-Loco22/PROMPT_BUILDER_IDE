@@ -313,6 +313,10 @@ class TestFrameworkRegistry:
         assert FrameworkName.RACE in names
         assert FrameworkName.APE in names
         assert FrameworkName.CRISPE in names
+        assert FrameworkName.CARE in names
+        assert FrameworkName.RISEN in names
+        assert FrameworkName.RTF in names
+        assert FrameworkName.CODE in names
 
     def test_get_framework_returns_correct_def(self):
         defn = get_framework(FrameworkName.RACE)
@@ -418,6 +422,68 @@ class TestMultiFramework:
         assert "**Schema:**" in text
         assert "**Persona:**" in text  # default applied
 
+    def test_care_valid_creation_and_compile(self):
+        p = PromptSchema(
+            framework=FrameworkName.CARE,
+            sections={
+                "context": "You are generating a precise API response for an internal service used by multiple teams.",
+                "action": "Write a response template for an authentication failure.",
+                "result": "A short, user-facing message plus a developer-friendly error code.",
+            },
+        )
+        text = p.compile_prompt()
+        assert "**Context:**" in text
+        assert "**Action:**" in text
+        assert "**Result:**" in text
+        assert "**Example:**" in text  # default applied (empty string)
+
+    def test_risen_valid_creation_and_compile(self):
+        p = PromptSchema(
+            framework=FrameworkName.RISEN,
+            sections={
+                "role": "DevOps engineer",
+                "instructions": "Design a CI/CD pipeline for a Python service.",
+                "steps": "1) Lint 2) Test 3) Build 4) Deploy",
+                "end_goal": "A working pipeline with clear stages and rollback guidance.",
+            },
+        )
+        text = p.compile_prompt()
+        assert "**Role:**" in text
+        assert "**Instructions:**" in text
+        assert "**Steps:**" in text
+        assert "**End Goal:**" in text
+        assert "**Narrowing:**" in text  # default applied
+
+    def test_rtf_valid_creation_and_compile(self):
+        p = PromptSchema(
+            framework=FrameworkName.RTF,
+            sections={
+                "role": "Technical writer",
+                "task": "Summarize the following release notes into a changelog entry.",
+                "format": "Markdown with a heading and 3 bullet points.",
+            },
+        )
+        text = p.compile_prompt()
+        assert "**Role:**" in text
+        assert "**Task:**" in text
+        assert "**Format:**" in text
+
+    def test_code_valid_creation_and_compile(self):
+        p = PromptSchema(
+            framework=FrameworkName.CODE,
+            sections={
+                "context": "A Python project uses Pydantic v2 and needs strict input validation for user profiles.",
+                "objective": "Generate a Pydantic model for a UserProfile.",
+                "details": "Fields: id(UUID), email(str), created_at(datetime).",
+                "expectations": "Return only Python code, include type hints, no extra prose.",
+            },
+        )
+        text = p.compile_prompt()
+        assert "**Context:**" in text
+        assert "**Objective:**" in text
+        assert "**Details:**" in text
+        assert "**Expectations:**" in text
+
     def test_missing_required_section_raises(self):
         with pytest.raises(ValidationError, match="required"):
             PromptSchema(
@@ -425,6 +491,67 @@ class TestMultiFramework:
                 sections={
                     "role": "Developer",
                     # missing action, context, expectation
+                },
+            )
+
+    def test_missing_required_section_raises_care(self):
+        with pytest.raises(ValidationError, match="required"):
+            PromptSchema(
+                framework=FrameworkName.CARE,
+                sections={
+                    "context": "You are generating a precise API response for an internal service used by multiple teams.",
+                    "action": "Write a response template for an authentication failure.",
+                    # missing result
+                },
+            )
+
+    def test_min_length_enforced_per_framework_care(self):
+        """CARE requires context min_length=20 and action min_length=10."""
+        with pytest.raises(ValidationError, match="at least"):
+            PromptSchema(
+                framework=FrameworkName.CARE,
+                sections={
+                    "context": "Too short",  # < 20 chars
+                    "action": "Do a thing",  # < 10 chars after stripping/punctuation
+                    "result": "Some result",
+                },
+            )
+
+    def test_min_length_enforced_per_framework_risen(self):
+        """RISEN requires instructions min_length=10."""
+        with pytest.raises(ValidationError, match="at least"):
+            PromptSchema(
+                framework=FrameworkName.RISEN,
+                sections={
+                    "role": "DevOps engineer",
+                    "instructions": "Short",  # < 10 chars
+                    "steps": "1) Do it",
+                    "end_goal": "Pipeline exists",
+                },
+            )
+
+    def test_min_length_enforced_per_framework_rtf(self):
+        """RTF requires task min_length=10."""
+        with pytest.raises(ValidationError, match="at least"):
+            PromptSchema(
+                framework=FrameworkName.RTF,
+                sections={
+                    "role": "Writer",
+                    "task": "Too short",  # < 10 chars
+                    "format": "Text",
+                },
+            )
+
+    def test_min_length_enforced_per_framework_code(self):
+        """CODE requires context min_length=20 and objective min_length=10."""
+        with pytest.raises(ValidationError, match="at least"):
+            PromptSchema(
+                framework=FrameworkName.CODE,
+                sections={
+                    "context": "Too short",  # < 20 chars
+                    "objective": "Short",  # < 10 chars
+                    "details": "Some details",
+                    "expectations": "Some expectations",
                 },
             )
 

@@ -8,7 +8,7 @@ IED Prompter is a framework-agnostic prompt engineering platform that automates 
 
 - Phase 1 (Environment & scaffolding): Completed — repository structure, Docker files, requirements, and initial smoke tests. See [PROGRESS.md](PROGRESS.md) for the full checklist.
 - Phase 2 (Agent Core): Completed — core components implemented and well-tested: Pydantic schemas, intent extraction, architect agent, simulation node, linter agent, and LangGraph-based orchestration (reflection loop).
-- Phase 3 (Streamlit UI): In progress — UI components planned (framework selector, dynamic editor, three-column layout, backend wiring).
+- Phase 3 (Frontend): In progress — Plan updated to Electron + HTML + FastAPI. Reuse existing HTML mock; FastAPI backend; desktop wrapper. See [FRONTEND_PLAN.md](FRONTEND_PLAN.md).
 - Phase 4 (Packaging & Distribution): Planned — production Dockerfile optimizations and deployment testing.
 
 Key metrics: ~302 tests passing across unit and end-to-end suites (295 unit + 7 e2e), live-model integration tests executed against Ollama (llama3:8b).
@@ -54,14 +54,14 @@ Implementation validation highlights:
 - Core: Python, Pydantic, pytest/pytest-asyncio.
 - LLM host: Ollama (local model runner, tested with `llama3:8b`).
 - Orchestration: LangGraph-style node wiring (internal graph builder).
-- UI (planned): Streamlit for rapid interactive UI.
+- UI (planned): Electron + HTML/CSS/JS + FastAPI for desktop IDE experience.
 - Deployment: Docker + docker-compose for containerized runs.
 
 Key files and manifests: [README.md](README.md), [PROGRESS.md](PROGRESS.md), [ARCHITECTURE.md](ARCHITECTURE.md), [requirements.txt](requirements.txt), [Dockerfile](Dockerfile), [docker-compose.yml](docker-compose.yml).
 
 ## Next Steps
 
-1. Complete Streamlit UI and wire to the LangGraph backend.
+1. Complete frontend integration (FastAPI backend, HTML wiring, Electron wrapper). See [FRONTEND_PLAN.md](FRONTEND_PLAN.md).
 2. Harden production Dockerfile and run E2E deployment tests.
 3. Add CI workflows to run unit and integration tests automatically; gate live-model tests to optional runs.
 

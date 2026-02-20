@@ -13,13 +13,14 @@ Build the reflection loop using LangGraph with multi-framework support:
 - **Orchestration** — LangGraph flow: extract_intent -> architect -> simulate -> linter -> conditional refinement loop (score >= 7 passes, else re-drafts with critique, max 3 iterations)
 
 ## Phase 3: The IDE UI
-Build the Streamlit interface with:
-- Framework selector dropdown (CO-STAR, RACE, APE, CRISPE)
-- Three-column layout: Framework sections | Prompt editor | Agent feedback
-- Real-time agent suggestions and Linter feedback display
+Build the desktop interface with Electron + HTML + FastAPI:
+- FastAPI backend serving REST API (compile, run, frameworks, domains, health)
+- Reuse existing HTML prompt-builder mock (KAIJU STATION design) with API wiring
+- Framework selector, model/format config, constraints, variables, few-shot examples
 - Side-by-side comparison view (Prompt A vs Prompt B)
-- Connect Streamlit editor to LangGraph backend
-- Prompt history / versioning
+- System status indicator; AbortController for in-flight request cancellation
+- Electron desktop wrapper spawning Python backend
+- See [FRONTEND_PLAN.md](FRONTEND_PLAN.md) for full specification
 
 ## Phase 4: Packaging & Distribution
 Make the project fully portable:

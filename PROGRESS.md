@@ -94,14 +94,17 @@
       format compliance edge cases (8), graph state management (3),
       custom framework (1) — 302 total tests passing (295 unit + 7 e2e)
 
-## Phase 3: Streamlit UI
-- [ ] Framework selector dropdown (CO-STAR, RACE, APE, CRISPE)
-- [ ] Dynamic section editor (fields adapt to selected framework)
-- [ ] Three-column layout (Framework | Editor | Feedback)
-- [ ] Connect UI to LangGraph backend
-- [ ] Side-by-side prompt comparison view (A vs B)
-- [ ] Real-time agent suggestions display
-- [ ] Prompt history / versioning
+## Phase 3: Frontend (Electron + HTML + FastAPI)
+
+*Updated Feb 2025: Switched from Streamlit to Electron + HTML + FastAPI. See [FRONTEND_PLAN.md](FRONTEND_PLAN.md) for full spec.*
+
+- [ ] FastAPI backend (`src/api/`) with /api/frameworks, /api/domains, /api/health, /api/compile, /api/run
+- [ ] Graph extensions: user_overrides, quality_threshold, SimulationNode per-invocation model/temp
+- [ ] Frontend: copy prompt-builder HTML to `frontend/index.html`; add required DOM ids
+- [ ] buildPayload() with empty-input validation; appState; AbortController for in-flight cancellation
+- [ ] System status indicator (Grey/Green/Red); disable RUN/COMPILE until API ready
+- [ ] Wire COMPILE, RUN, COMPARE A/B to API; update output panels
+- [ ] Electron wrapper: cross-OS Python path, cwd=projectRoot, spawn uvicorn, load http://127.0.0.1:8000/
 
 ## Phase 4: Packaging & Distribution
 - [ ] Optimized production Dockerfile

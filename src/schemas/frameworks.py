@@ -23,6 +23,10 @@ class FrameworkName(str, Enum):
     RACE = "race"
     APE = "ape"
     CRISPE = "crispe"
+    CARE = "care"
+    RISEN = "risen"
+    RTF = "rtf"
+    CODE = "code"
 
 
 @dataclass(frozen=True)
@@ -154,6 +158,86 @@ CRISPE = FrameworkDef(
     ),
 )
 
+CARE = FrameworkDef(
+    name=FrameworkName.CARE,
+    display_name="CARE",
+    sections=(
+        SectionDef("context", "Context", "Background info and constraints for the task", required=True, min_length=20),
+        SectionDef("action", "Action", "What the AI should do", required=True, min_length=10),
+        SectionDef("result", "Result", "What success looks like", required=True),
+        SectionDef("example", "Example", "Example of an ideal output", required=False, default=""),
+    ),
+    compile_template=(
+        "**Context:**\n{context}\n\n"
+        "**Action:**\n{action}\n\n"
+        "{constraints_block}"
+        "{required_elements_block}"
+        "{examples_block}"
+        "**Result:**\n{result}\n\n"
+        "**Example:**\n{example}\n"
+    ),
+)
+
+RISEN = FrameworkDef(
+    name=FrameworkName.RISEN,
+    display_name="RISEN",
+    sections=(
+        SectionDef("role", "Role", "Who the AI should act as", required=True),
+        SectionDef("instructions", "Instructions", "High-level instructions for the task", required=True, min_length=10),
+        SectionDef("steps", "Steps", "Step-by-step approach", required=True),
+        SectionDef("end_goal", "End Goal", "Definition of done / desired outcome", required=True),
+        SectionDef("narrowing", "Narrowing", "Assumptions, constraints, or scope narrowing", required=False, default="None"),
+    ),
+    compile_template=(
+        "**Role:**\n{role}\n\n"
+        "**Instructions:**\n{instructions}\n\n"
+        "**Steps:**\n{steps}\n\n"
+        "{constraints_block}"
+        "{required_elements_block}"
+        "{examples_block}"
+        "**End Goal:**\n{end_goal}\n\n"
+        "**Narrowing:**\n{narrowing}\n"
+    ),
+)
+
+RTF = FrameworkDef(
+    name=FrameworkName.RTF,
+    display_name="RTF",
+    sections=(
+        SectionDef("role", "Role", "Who the AI should act as", required=True),
+        SectionDef("task", "Task", "What the AI should do", required=True, min_length=10),
+        SectionDef("format", "Format", "The output format to follow", required=True),
+    ),
+    compile_template=(
+        "**Role:**\n{role}\n\n"
+        "**Task:**\n{task}\n\n"
+        "{constraints_block}"
+        "{required_elements_block}"
+        "{examples_block}"
+        "**Format:**\n{format}\n"
+    ),
+)
+
+CODE = FrameworkDef(
+    name=FrameworkName.CODE,
+    display_name="CODE",
+    sections=(
+        SectionDef("context", "Context", "Background info and technical context", required=True, min_length=20),
+        SectionDef("objective", "Objective", "What to build or produce", required=True, min_length=10),
+        SectionDef("details", "Details", "Inputs, constraints, and key specifics", required=True),
+        SectionDef("expectations", "Expectations", "Quality bar and output expectations", required=True),
+    ),
+    compile_template=(
+        "**Context:**\n{context}\n\n"
+        "**Objective:**\n{objective}\n\n"
+        "**Details:**\n{details}\n\n"
+        "{constraints_block}"
+        "{required_elements_block}"
+        "{examples_block}"
+        "**Expectations:**\n{expectations}\n"
+    ),
+)
+
 # ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
@@ -163,6 +247,10 @@ _REGISTRY: Dict[str, FrameworkDef] = {
     FrameworkName.RACE.value: RACE,
     FrameworkName.APE.value: APE,
     FrameworkName.CRISPE.value: CRISPE,
+    FrameworkName.CARE.value: CARE,
+    FrameworkName.RISEN.value: RISEN,
+    FrameworkName.RTF.value: RTF,
+    FrameworkName.CODE.value: CODE,
 }
 
 
